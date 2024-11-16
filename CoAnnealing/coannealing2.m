@@ -107,7 +107,7 @@ while temp > Tmin
         aux_fun2(count, : ) = soli;
         
         aux_crystal_factor1(count, :) = C_i(:);
-    end
+    end % end of secondary loop 
 aux_count = aux_count + 1;
 aux_temp(aux_count) = temp;
 aux_fun(aux_count, :) = mean(aux_fun2);
@@ -116,9 +116,8 @@ aux_rejected(aux_count) = rejected;
 aux_crystal_factor2(aux_count,:) = mean(aux_crystal_factor1);
 [qtd_sol, ~] = size(sol);
 fprintf('Temp.: %f , archive size.: %f \n', temp, qtd_sol)
-%fprintf('r_count: %f \n', r_count)
 temp = temp * alpha;
-end
+end % end of the main loop
 
 
 %determine the running time

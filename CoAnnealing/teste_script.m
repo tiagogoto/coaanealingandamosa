@@ -3,7 +3,7 @@ clear all
 %problem = "MO2";
 %problem = "kursawe";
 %problem = "poloni";
-problem = "ZDT1";
+%problem = "ZDT1";
 %problem = "ZDT2";
 %problem = "ZDT3";
 %problem = "ZDT4";
@@ -17,7 +17,7 @@ problem = "ZDT1";
 %problem = "DTLZ6"; com problema referência ?
 %problem = "DTLZ7";
 %problem = "binh"; 
-%problem = "chankong";
+problem = "chankong";
 %problem = "constr"
 %problem = "TNK";
 %run = 133;
