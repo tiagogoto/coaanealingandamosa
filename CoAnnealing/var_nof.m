@@ -58,8 +58,8 @@ switch problem
     case "poloni"
         nof = 2;
         nov = 2;
-        maxv = [pi];
-        minv = [-pi];
+        maxv = [pi, pi];
+        minv = [-pi, -pi];
     case "ZDT1"
         nof = 2;
         nov = 30;

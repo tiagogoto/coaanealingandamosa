@@ -9,7 +9,7 @@ clear all
 %problem = "ZDT4";
 %problem = "ZDT6";
 %problem = "Viennet"
-%problem = "DTLZ1";
+problem = "DTLZ1";
 %problem = "DTLZ2";
 %problem = "DTLZ3";
 %problem = "DTLZ4";
@@ -17,7 +17,7 @@ clear all
 %problem = "DTLZ6"; com problema referência ?
 %problem = "DTLZ7";
 %problem = "binh"; 
-problem = "chankong";
+%problem = "chankong";
 %problem = "constr"
 %problem = "TNK";
 %run = 133;
@@ -25,12 +25,12 @@ score = [];
 timetable = [];
 Tmax = 200;
 Tmin = 0.00000001;
-N = 500;
+N = 50000;
 alpha = 0.95; %85;
 HL = 75;
 SL = 100;
 filename_aux = strcat(problem, "coannealing");
-for run = 1:2
+for run = 1:1
 filename = filename_aux;    
 aux = [];
 filename = strcat(filename,string(run));
@@ -64,10 +64,10 @@ else
     title('Coannealing');
     legend({problem, 'Frente de Pareto Ótima'}, 'location', 'best')
 end
-%saveas(figure(4), strcat(filepath, '.png'));
+saveas(figure(4), strcat(filepath, '.png'));
 end
-%path_score = strcat(filepath, '_score.txt');
-%writematrix(score, path_score, 'Delimiter', 'space');
-%path_time = strcat(filepath, '_times.txt');
-%writematrix(timetable, path_time, 'Delimiter', 'space');
-%[C, D, P, S] = benchmark(sol, problem, run);
+path_score = strcat(filepath, '_score.txt');
+writematrix(score, path_score, 'Delimiter', 'space');
+path_time = strcat(filepath, '_times.txt');
+writematrix(timetable, path_time, 'Delimiter', 'space');
+%[C, D, P, S] = benchmark(sol, problem);

@@ -28,6 +28,7 @@ Where:
 
 ## AMOSA algorithm
 
+The AMOSA algorithm was implement for each benchmark function, run algorithm 
 
 
 

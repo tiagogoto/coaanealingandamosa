@@ -14,14 +14,9 @@ Cmax = 20;
 timetable = [];
 %srting the archive 
 [archive, sol] = iarchive(SL, nov, minv, maxv, problem);
-%archive = readmatrix('DTLZ1_pp2.txt');
 [aa, ~] = size(archive);
-%for i = 1:aa
-%    sol(i, :) =  fobj(archive(i, :), problem);
-%end
-%figure(10)
-%scatter3(sol(:, 1), sol(:, 2), sol(:, 3))
-% select the current solution and the new solution 
+
+ 
 ale = randi([1,aa]);
 xi = archive(ale, :);
 soli = sol(ale, :);
@@ -38,21 +33,21 @@ aux_fun2 = [];
 aux_count =  1;
 aux_r = 0;
 evaluate_historic = 0;
-%fh = figure;
 % the main loop 
 while temp > Tmin
     count = 1;
-    % the lenght of each temperature loop, stop if the thermal equilibrium
-    % is reached
     accepted = 0;
     rejected = 0;
+    % the lenght of each temperature loop, stop if the thermal equilibrium
+    % is reached
     while count < N && accepted < N/2
         res = 0;
+        % The next solution 
         while res == 0
             [xj, C_ind] = newsolution3(xi, C_i, maxv, minv, Cmax);
             res = restriction(xj, problem);
         end
-        solj = fobj(xj,problem);
+        solj = fobj(xj,problem); % evaluate the objective function value of the nexto solution
         evaluate_historic = evaluate_historic + 1;
         R = maxmin(sol);
         deltaE = maxdom(solj, sol, R) - maxdom(soli, sol, R);
@@ -61,7 +56,7 @@ while temp > Tmin
         if (deltaE <= 0) || (rand_number < p) %condição verificar
             xi(:,:) = xj(:,:);
             soli = solj;
-            C_i(C_ind) = round(C_i(C_ind)-1);
+            C_i(C_ind) =  1;%round(C_i(C_ind)/2);
            if C_i(C_ind) < 1
                 C_i(C_ind) = 1;
            end
@@ -73,14 +68,13 @@ while temp > Tmin
                 %[archive, sol] = delete(archive, sol, solj);
                 [a, ~] =  size(sol);
                 if (a ) >= SL
-                    %disp('clustering')
+                    % start clustering process
                     [archive, sol] = clusterh9(archive, sol, HL);
                     if check(xi, archive) == 0
                         r_count = r_count + 1;
                         if r_count < max_r
                             archive(end + 1, :) = xi;
-                            sol(end +1, :) = soli;
-                            
+                            sol(end +1, :) = soli;    
                         else
                             [qtd_sol, ~] = size(sol);
                             rand_number = randi([1, qtd_sol], 1,1);
@@ -89,7 +83,6 @@ while temp > Tmin
                             C_i = ones(1, nov);
                             aux_r = aux_r + 1;
                             r_count = 0;
-                            %fprintf('novo sorteado, índice: %f \n', rand_number);
                         end
                     else
                         r_count = 0;
@@ -98,9 +91,9 @@ while temp > Tmin
            end
            accepted = accepted + 1;
         else
-            %if C_i(C_ind) < 20
+            if C_i(C_ind) < 20
             C_i(C_ind) = C_i(C_ind) + 1;
-            %end
+            end
             rejected = rejected + 1;
         end
         count = count + 1;
@@ -129,10 +122,10 @@ fprintf('TIC TOC time: %g \n', elapsedtime );
 fprintf('Clock time: %g \n', etime(end_time_time, start_time_time));
 fprintf('Evaluated: %d \n', evaluate_historic);
 fprintf('aux_r %f \n', aux_r)
-%timetable = [elapsedtime,abs(start_time_cputime - end_time_cputime), etime(end_time_time, start_time_time),evaluate_historic];
+timetable = [elapsedtime,abs(start_time_cputime - end_time_cputime), etime(end_time_time, start_time_time),evaluate_historic];
 % save the date
-%filename = strcat('', filename);
-%save(filename)
+filename = strcat('results/', filename);
+save(filename)
 
 %% Plotting informations
 figure(1)
@@ -145,7 +138,7 @@ title('Solução Aceita vs Temperatura')
 xlabel('Temperatura')
 ylabel('Solução Aceita ou Rejeitada')
 legend({'Aceito', 'Rejeitado'}, 'location', 'best')
-%saveas(figure(1), strcat(filename, '_acceptance.png'));
+saveas(figure(1), strcat(filename, '_acceptance.png'));
 figure(2)
 plot(aux_temp, aux_fun(:, 1))
 hold on;
@@ -157,7 +150,7 @@ set(gca, 'Xdir', 'reverse', 'XScale', 'log', 'fontsize', 11)
 title('Função Objetivo vs Temperatura')
 xlabel('Temperatura')
 ylabel('Valor da função Objetivo')
-%saveas(figure(2), strcat(filename, '_objxtemp.png'));
+saveas(figure(2), strcat(filename, '_objxtemp.png'));
 figure(3)
 plot(aux_temp, aux_crystal_factor2(:, 1))
 hold on;
@@ -169,7 +162,7 @@ set(gca, 'Xdir', 'reverse','XScale', 'log', 'fontsize', 11)
 title('Fator de cristaliazação vs Temperatura')
 xlabel('Temperatura')
 ylabel('Fator de Cristalização')
-%saveas(figure(1), strcat(filename, '_cristalization.png'));
+saveas(figure(1), strcat(filename, '_cristalization.png'));
 end
 
 function [R] = maxmin(sol)

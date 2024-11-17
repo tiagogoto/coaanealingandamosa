@@ -7,8 +7,8 @@ flag = zeros(num, 1);
 
 indexhull = conv( sol);
 flag(indexhull) = 1;
-[f_max(1:nof), arg_max(1:nof)] = max(sol(:, 1:nof));
-%flag(arg_max) = 1;
+[f_min(1:nof), arg_min(1:nof)] = min(sol(:, 1:nof));
+flag(arg_min) = 1;
 % 1, eliminar todas as soluções ruins
 % 2. eliminar ios que não estão no outer-shell
 % 3. depois faz single-linkage

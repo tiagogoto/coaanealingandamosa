@@ -5,7 +5,7 @@ function [sol] = kursawe(x)
     end
     aux2 = 0;
     for i = 1:3
-        aux2 = aux2 + (x(i)^0.8 + 5 * sin(x(i)^3));
+        aux2 = aux2 + (abs(x(i))^0.8 + 5 * sin(x(i)^3));
     end
     
     sol(1) = aux;
