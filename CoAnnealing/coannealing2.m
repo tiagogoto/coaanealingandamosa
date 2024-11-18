@@ -56,7 +56,7 @@ while temp > Tmin
         if (deltaE <= 0) || (rand_number < p) %condição verificar
             xi(:,:) = xj(:,:);
             soli = solj;
-            C_i(C_ind) =  1;%round(C_i(C_ind)/2);
+            C_i(C_ind) =  1;%C_i(C_ind) - 1;%round(C_i(C_ind)/2);
            if C_i(C_ind) < 1
                 C_i(C_ind) = 1;
            end

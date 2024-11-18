@@ -6,7 +6,5 @@ function [sol] = ZDT4(x)
     end 
     g = 91 + aux;
     h = 1 - sqrt(sol(1) / g);
-    %h = 1 - (solution(1)/g)^2;
-    %h = 1 - sqrt(solution(1)/g) - (solution(1)/g)*sin(10*pi*x(1));
     sol( 2 ) = g * h;
 end
