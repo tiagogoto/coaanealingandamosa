@@ -6,3 +6,13 @@
 teste_scrip.m
 anotacaoes.md
 teste_script.m
+AMOSA/benchmark.m
+AMOSA/spread.m
+AMOSA/newspaceing.m
+AMOSA/gd.m
+CoAnnealing/spread.m
+CoAnnealing/newspaceing.m
+CoAnnealing/benchmark.m
+CoAnnealing/gd.m
+CoAnnealing/cluster.m
+

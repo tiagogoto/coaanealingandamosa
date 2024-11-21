@@ -8,26 +8,31 @@ clear all
 run_num = string(1);
 fun_name = "ZDT4_";
 problem = "ZDT4";
-filename = strcat(fun_name, run_num);
+score = [];
+timetable =[];
+for run_num = 1:5
+
+filename = strcat(fun_name, string(run_num));
+filename = strcat('amosa/', filename);
 file_solutions = strcat(filename, "_solutions");
 file_archive = strcat(filename, "_archive");
 tic;
 initime = cputime();
 time1 = clock;
-Tmax = 100;
-Tmin = 0.000000001;
+Tmax = 200;
+Tmin = 0.00000001;
 N = 5000;
-HL = 50;
+HL = 75;
 SL = 100;
 alpha = 0.85;
 Temp = Tmax;
 nof = 2;
 nov = 10;
-xmax = [1, 5, 5, 5, 5, 5, 5, 5,5 ,5 ];
-xmin = [0 , -5, -5,-5,-5,-5,-5,-5,-5, -5];
+xmax = [1, 10, 10, 10, 10, 10, 10, 10,10 ,10 ];
+xmin = [0 , -10, -10,-10,-10,-10,-10,-10,-10, -10];
 b = 0.5;
 % inicializando o archive e soluções
-
+evaluate = 0;
 [archive, solution] = iarchive(SL, nov, xmin, xmax);
 %figure(1)
 %scatter(solution(:, 1), solution(:,2))
@@ -52,6 +57,7 @@ while Temp > Tmin
         end
         %disp('new solution was generate!')
         solutionj = fobj(xj);
+        evaluate = evaluate + 1;
         R = maxmin(solution);
         aux1 = 0;
         aux2 = 0;
@@ -208,9 +214,9 @@ elapsed = toc;
 time2 = clock;
 
 fprintf('TIC TOC: %g\n', elapsed);
-fprintf('CPUTIME: %g% \n', fintime);
+fprintf('CPUTIME: %g\n', fintime - initime);
 fprintf('CLOCK:   %g\n', etime(time2, time1));
-
+fprintf('Evaluate: %g\n', evaluate);
 
 filenamepareto = strcat(problem, "_pareto.dat");
 true_sol = readmatrix(filenamepareto);
@@ -218,13 +224,14 @@ figure(2)
 scatter(solution(:,1), solution(:,2), 35, 'r', 'filled')
 hold on;
 scatter(true_sol(:, 1), true_sol(:, 2), 'c')
+hold off;
 title('AMOSA')
 xlabel('f1(x)')
 ylabel('f2(x)')
-
-legend({filename}, 'location', 'best')
+zlabel('f3(x)')
+legend('ZDT4', 'location', 'best')
 saveas(figure(2), strcat(filename, '.png'));
-%hold on
+
 %vv=0:0.0001:1;
 %ff = (1 - sqrt(vv));
 %plot(vv, ff);
@@ -232,9 +239,18 @@ saveas(figure(2), strcat(filename, '.png'));
 save(filename)
 save(file_solutions, 'solution')
 save(file_archive, 'archive')
+timetable(run_num, :) = [elapsed, abs(fintime - initime), etime(time2, time1), evaluate ];
+[score(run_num, :)] = benchmark(solution, problem);
+end
+path_score = strcat(filename, '_score.txt');
+path_time = strcat(filename, '_time.txt');
+writematrix(score, path_score, 'Delimiter', 'space');
+writematrix(timetable, path_time, 'Delimiter', 'space');
 
-[C, D, P, S] = benchmark(solution, problem, run_num);
+
+
 %--------------------------------------------
+
 function [sol] = fobj(x)
   sol( 1 ) = x(1);
     aux = 0;
@@ -243,15 +259,12 @@ function [sol] = fobj(x)
     end 
     g = 91 + aux;
     h = 1 - sqrt(sol(1) / g);
-    %h = 1 - (solution(1)/g)^2;
-    %h = 1 - sqrt(solution(1)/g) - (solution(1)/g)*sin(10*pi*x(1));
     sol( 2 ) = g * h;
 end
 
 function res = restriction(x)
     res = 1;
 end
-
 function [arc,sol] = iarchive(SL, nov, minv, maxv)
 arc = [];
 sol = [];
@@ -358,6 +371,7 @@ else
     dominance = 0;
 end
 end
+
 function [archive, sol] = delete(archive, sol, a)
     [lines, nof] = size(archive);
     k = 0;

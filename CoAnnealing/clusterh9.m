@@ -3,19 +3,27 @@ function [archive, sol] = clusterh9(archive, sol, HL)
 indexhull = [];
 flag = zeros(num, 1);
 
+% hierachy
+% 1. Solutions at the boundary of the Archive 
+% 2. Solutions belonging to the convex full of the Archive
+% 3. Solutions belonging to the local cluster convex hull.
+% 4. The remaining candidates
+
 %check solutions with bad solution
 
+% preserve the solution that belongs to the outer shell
 indexhull = conv( sol);
 flag(indexhull) = 1;
-[f_min(1:nof), arg_min(1:nof)] = min(sol(:, 1:nof));
-flag(arg_min) = 1;
-% 1, eliminar todas as soluções ruins
-% 2. eliminar ios que não estão no outer-shell
-% 3. depois faz single-linkage
 to_remove = num - HL;
 
+% remove remaining solution, hierachy 4 and remove any dominated solution 
 [archive, sol] = remove_bad(archive, sol, flag, to_remove);
 [num, ~] = size(sol);
+
+% preserve the solution on the extreme of pareto Front
+
+[f_min(1:nof), arg_min(1:nof)] = min(sol(:, 1:nof));
+flag(arg_min) = 1;
 
 %  etapa 2
 if num > HL

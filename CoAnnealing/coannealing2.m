@@ -53,19 +53,22 @@ while temp > Tmin
         deltaE = maxdom(solj, sol, R) - maxdom(soli, sol, R);
         p = exp(-deltaE/temp);
         rand_number = rand();
-        if (deltaE <= 0) || (rand_number < p) %condição verificar
+        if (deltaE <= 0) || (rand_number < p) %check if accepte the next candidate
             xi(:,:) = xj(:,:);
             soli = solj;
-            C_i(C_ind) =  1;%C_i(C_ind) - 1;%round(C_i(C_ind)/2);
+            % cristalization Positive Feedback
+            % estrategy I - C = 1 
+            % estrategy II - C / 2 -> round(C_i(C_ind)/2);
+            %estrategy III - C = C -1  -> %C_i(C_ind) - 1;
+            C_i(C_ind) =  1;
            if C_i(C_ind) < 1
                 C_i(C_ind) = 1;
            end
            mdom = maxdom(solj, sol, R); %condição verificar
            if mdom <= 0 
                 [a, ~] =  size(sol);
-                archive(a + 1,: ) = xj; 
-                sol(a + 1, :) = solj;
-                %[archive, sol] = delete(archive, sol, solj);
+                archive(end + 1,: ) = xj; 
+                sol(end + 1, :) = solj;
                 [a, ~] =  size(sol);
                 if (a ) >= SL
                     % start clustering process
@@ -91,16 +94,18 @@ while temp > Tmin
            end
            accepted = accepted + 1;
         else
-            if C_i(C_ind) < 20
+            % Crystallization Negative Feedback
             C_i(C_ind) = C_i(C_ind) + 1;
-            end
+            
             rejected = rejected + 1;
         end
         count = count + 1;
         aux_fun2(count, : ) = soli;
         
         aux_crystal_factor1(count, :) = C_i(:);
-    end % end of secondary loop 
+    end % end of secondary loop
+
+% statistic datas 
 aux_count = aux_count + 1;
 aux_temp(aux_count) = temp;
 aux_fun(aux_count, :) = mean(aux_fun2);
@@ -108,7 +113,10 @@ aux_acceptance(aux_count) = accepted;
 aux_rejected(aux_count) = rejected;
 aux_crystal_factor2(aux_count,:) = mean(aux_crystal_factor1);
 [qtd_sol, ~] = size(sol);
+% output temperature informations
 fprintf('Temp.: %f , archive size.: %f \n', temp, qtd_sol)
+
+% decrease temperature
 temp = temp * alpha;
 end % end of the main loop
 
@@ -123,9 +131,11 @@ fprintf('Clock time: %g \n', etime(end_time_time, start_time_time));
 fprintf('Evaluated: %d \n', evaluate_historic);
 fprintf('aux_r %f \n', aux_r)
 timetable = [elapsedtime,abs(start_time_cputime - end_time_cputime), etime(end_time_time, start_time_time),evaluate_historic];
+
 % save the date
 filename = strcat('results/', filename);
 save(filename)
+
 
 %% Plotting informations
 figure(1)

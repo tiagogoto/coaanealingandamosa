@@ -2,6 +2,7 @@ function [score] =  benchmark(solution, problem)
 filename = strcat(problem, "_pareto.dat");
 true_sol = readmatrix(filename);
 score = [];
+
 % IGD 
 score(1) = igd(solution, true_sol);
 %% Convergence
@@ -16,10 +17,13 @@ score(3) = spread(solution, true_sol);
 score(4) = gd(solution, true_sol);
 score(5) = convergence(solution, true_sol);
 score(6) = displacement(solution, true_sol);
-%filename = strcat(problem, "benchmark_", string(run));
-%save(filename)
+
+
+
 
 end
+
+
 %% Convergence
 function C = convergence(solution, R) 
 [lines, nof] = size(solution);
