@@ -3,26 +3,33 @@
 % run the kursawe 
 
 clear all 
-filename = "kursawe";
+fun_name = "kursawe_";
+problem = "kursawe";
+
+score = [];
+timetable =[];
+for run_num = 1:150
+filename = strcat(fun_name, string(run_num));
+filename = strcat('amosa/', filename);
 file_solutions = strcat(filename, "_solutions");
 file_archive = strcat(filename, "_archive");
 tic;
 initime = cputime();
 time1 = clock;
-Tmax = 100;
-Tmin = 0.001;
-N = 500;
-HL = 50;
+Tmax = 200;
+Tmin = 0.00000001;
+N = 10;
+HL = 75;
 SL = 100;
-alpha = 0.85;
+alpha = 0.95;
 Temp = Tmax;
 nof = 2;
 nov = 3;
-xmax = [5, 5, 5];
+xmax = [5,5,5];
 xmin = [-5,-5,-5];
 b = 0.5;
 % inicializando o archive e soluções
-
+evaluate = 0;
 [archive, solution] = iarchive(SL, nov, xmin, xmax);
 %figure(1)
 %scatter(solution(:, 1), solution(:,2))
@@ -47,6 +54,7 @@ while Temp > Tmin
         end
         %disp('new solution was generate!')
         solutionj = fobj(xj);
+        evaluate = evaluate + 1;
         R = maxmin(solution);
         aux1 = 0;
         aux2 = 0;
@@ -201,15 +209,26 @@ end % first while
 fintime = cputime;
 elapsed = toc;
 time2 = clock;
+
 fprintf('TIC TOC: %g\n', elapsed);
 fprintf('CPUTIME: %g\n', fintime - initime);
 fprintf('CLOCK:   %g\n', etime(time2, time1));
+fprintf('Evaluate: %g\n', evaluate);
 
+
+filenamepareto = strcat(problem, "_pareto.dat");
+true_sol = readmatrix(filenamepareto);
 figure(2)
-scatter(solution(:,1), solution(:,2), 35, 'blue', 'filled')
+scatter(solution(:,1), solution(:,2), 35, 'r', 'filled')
+hold on;
+scatter(true_sol(:, 1), true_sol(:, 2), 'c')
+hold off;
 title('AMOSA')
 xlabel('f1(x)')
 ylabel('f2(x)')
+zlabel('f3(x)')
+legend('ZDT1', 'location', 'best')
+saveas(figure(2), strcat(filename, '.png'));
 %hold on
 %vv=0:0.0001:1;
 %ff = (1 - sqrt(vv));
@@ -218,7 +237,16 @@ ylabel('f2(x)')
 save(filename)
 save(file_solutions, 'solution')
 save(file_archive, 'archive')
+timetable(run_num, :) = [elapsed, abs(fintime - initime), etime(time2, time1), evaluate ];
+[score(run_num, :)] = benchmark(solution, problem);
+end
 
+path_score = strcat(filename, '_score.txt');
+path_time = strcat(filename, '_time.txt');
+writematrix(solution, file_solutions, 'Delimiter', 'space');
+writematrix(archive, file_archive, 'Delimiter', 'space');
+writematrix(score, path_score, 'Delimiter', 'space');
+writematrix(timetable, path_time, 'Delimiter', 'space');
 %--------------------------------------------
 function [sol] = fobj(x)
     aux = 0;
@@ -232,7 +260,6 @@ function [sol] = fobj(x)
     sol(1) = aux;
     sol(2) = aux2;
 end
-
 function res = restriction(x)
     res = 1;
 end
@@ -257,7 +284,7 @@ function [archive, solution] = clust(archive, solution, HL)
         while cont <= a 
             for k = 1:(a)
                 if k == cont
-                    min_list(k , k) = 0;
+                    min_list(k , k) = NaN;
                 else
                     aux = 0;
                     for i = 1:b
@@ -344,17 +371,47 @@ else
 end
 end
 
-function [newarch, newsol] = delete(archive, sol, a)
+function [archive, sol] = delete(archive, sol, a)
     [lines, nof] = size(archive);
     k = 0;
     h = 1;
+    list_remove = [];
     for uu = 1:lines
         if is_dominated(a, sol(uu, :)) == 1
             k = k + 1;
+            list_remove(end +1) = uu;
         else
-            newarch(h, :) = archive(uu, :);
-            newsol(h, :) = sol(uu, :);
+            
             h = h + 1;
         end
     end
+    archive(list_remove, :) = [];
+    sol(list_remove, :) = [];
+end
+function [archive, sol] = init_sol(nof, nov, maxv, minv, SL)
+hill_climb = 20;
+b = 0.5;
+for ii = 1:SL
+    for col = 1:nov
+        archive(ii, col) = rand() * (maxv(col) - minv(col)) + minv(col);
+    end
+end
+sol = [];
+for i = 1:SL
+    for j = 1:hill_climb
+        sol(i, :) = fobj(archive(i, :));
+        xnew = newsolution(archive(i, :), b, nov, maxv, minv);
+        solnew = fobj(xnew);
+        count = 0;
+        for iii = 1:nof
+            if sol(i, iii) >= solnew(iii)
+                count = count + 1 ;
+            end
+        end
+        if count == nof
+            sol(i, : ) = solnew;
+            archive(i, :) = xnew;
+        end
+    end
+end
 end

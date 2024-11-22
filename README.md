@@ -44,7 +44,6 @@ Unconstrained Benchmark function with two objective function
 * Kursawe function (name = 'kursawe')
 * Schaffer function N° 1 ( name = MO1)
 * Schaffer function N° 2 (name = MO2)
-* Fonseca–Fleming
 * Poloni's two objective function
 
 Unconstrained Benchmark function with three objective function
@@ -60,6 +59,7 @@ Benchmark function with constraints:
 * Binh and Korn function, (name='binhkorn')
 * Chankong and Haimes function, (name='chankong')
 * Constr-Ex problem (name= 'constrex')
+* TNK 
 
 ## References
 

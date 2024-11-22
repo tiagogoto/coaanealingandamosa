@@ -105,5 +105,10 @@ switch problem
         nov = 2;
         maxv = [pi, pi];
         minv = [0, 0];
+    case "fonseca"
+        nof = 2;
+        nov = 5;
+        maxv = [4,4,4,4,4];
+        minv = [-4,-4,-4,-4,-4];
 end
 end
