@@ -10,7 +10,7 @@ fun_name = "ZDT4_";
 problem = "ZDT4";
 score = [];
 timetable =[];
-for run_num = 1:5
+for run_num = 1:150
 
 filename = strcat(fun_name, string(run_num));
 filename = strcat('amosa/', filename);
@@ -24,7 +24,7 @@ Tmin = 0.00000001;
 N = 5000;
 HL = 75;
 SL = 100;
-alpha = 0.85;
+alpha = 0.95;
 Temp = Tmax;
 nof = 2;
 nov = 10;

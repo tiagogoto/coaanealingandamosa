@@ -1,15 +1,15 @@
 % Amosa  
 
-% run the 
+% run the Viennet
 
 clear all 
-%run_num = string(10);
-fun_name = "MO2_";
-problem = "MO2";
-
+run_num = string(1);
+fun_name = "DTLZ4_";
+problem = "DTLZ4";
 score = [];
 timetable =[];
-for run_num = 1:1
+for run_num = 22:150
+    
 filename = strcat(fun_name, string(run_num));
 filename = strcat('amosa/', filename);
 file_solutions = strcat(filename, "_solutions");
@@ -18,20 +18,21 @@ tic;
 initime = cputime();
 time1 = clock;
 Tmax = 200;
-Tmin = 0.000000001;
-N = 500;
+Tmin = 0.00000001;
+N = 15000;
 HL = 75;
 SL = 100;
 alpha = 0.95;
 Temp = Tmax;
-nof = 2;
-nov = 1;
-xmax = [10];
-xmin = [-5];
+nof = 3;
+nov = 12;
+xmax = ones(1,nov);
+xmin = zeros(1, nov);
 b = 0.5;
 % inicializando o archive e soluções
 evaluate = 0;
-[archive, solution] = iarchive(SL, nov, xmin, xmax);
+%[archive, solution] = iarchive(SL, nov, xmin, xmax);
+[archive, solution] = init_sol(nof, nov, xmax, xmin, SL);
 %figure(1)
 %scatter(solution(:, 1), solution(:,2))
 ale_index = randi([1,SL]);
@@ -61,9 +62,9 @@ while Temp > Tmin
         aux2 = 0;
         for j = 1:nof
             if solutioni(j) <= solutionj(j)
-                aux1 = aux1 +1;
+                aux1 = aux1 + 1;
             elseif solutionj(j) <= solutioni(j)
-                aux2 = aux2 +1;
+                aux2 = aux2 + 1;
             end
         end
             
@@ -133,21 +134,23 @@ while Temp > Tmin
                         solution(i, :) = [];
                         break;
                     end
-                end
-                % remove all solution in archive dominated by new solution
-                [archive, solution] = delete(archive, solution, solutionj);
-                %disp('Deletados')
-                % if archive > HL, do the cluster
-                if size(archive) > SL
-                    [archive, solution] = clust(archive, solution, HL);
-                    %disp('clusterizado')
-                end
-                %set the new solution as current solution 
+                 end
                 [lines, ~] = size(archive);
                 xi = xj;
                 solutioni = solutionj;
                 archive(lines + 1,: ) = xi;
-                solution(lines + 1, : ) = solutioni;               
+                solution(lines + 1, : ) = solutioni;  
+                % remove all solution in archive dominated by new solution
+                [archive, solution] = delete(archive, solution, solutionj);
+                %disp('Deletados')
+                % if archive > HL, do the cluster
+                [aux_size,  ~] = size(archive);
+                if aux_size > SL
+                    [archive, solution] = clust(archive, solution, HL);
+                    %disp('clusterizado')
+                end
+                %set the new solution as current solution 
+                             
                 
             end
 %--------------------------------------------------------------------------
@@ -220,15 +223,15 @@ fprintf('Evaluate: %g\n', evaluate);
 filenamepareto = strcat(problem, "_pareto.dat");
 true_sol = readmatrix(filenamepareto);
 figure(2)
-scatter(solution(:,1), solution(:,2), 35, 'r', 'filled')
+scatter3(solution(:,1), solution(:,2), solution(:, 3), 35, 'r', 'filled')
 hold on;
-scatter(true_sol(:, 1), true_sol(:, 2), 'c')
+scatter3(true_sol(:, 1), true_sol(:, 2),true_sol(:, 3), 'c')
 hold off;
 title('AMOSA')
 xlabel('f1(x)')
 ylabel('f2(x)')
 zlabel('f3(x)')
-legend('ZDT1', 'location', 'best')
+legend({filename, 'Optimal Pareto Front'}, 'location', 'best')
 saveas(figure(2), strcat(filename, '.png'));
 %hold on
 %vv=0:0.0001:1;
@@ -238,44 +241,31 @@ saveas(figure(2), strcat(filename, '.png'));
 save(filename)
 save(file_solutions, 'solution')
 save(file_archive, 'archive')
-writematrix(solution, file_solutions, 'Delimiter', 'space');
-writematrix(archive, file_archive, 'Delimiter', 'space');
 timetable(run_num, :) = [elapsed, abs(fintime - initime), etime(time2, time1), evaluate ];
 [score(run_num, :)] = benchmark(solution, problem);
 end
 
 path_score = strcat(filename, '_score.txt');
 path_time = strcat(filename, '_time.txt');
-
+writematrix(solution, file_solutions, 'Delimiter', 'space');
+writematrix(archive, file_archive, 'Delimiter', 'space');
 writematrix(score, path_score, 'Delimiter', 'space');
 writematrix(timetable, path_time, 'Delimiter', 'space');
+
 %--------------------------------------------
 function [sol] = fobj(x)
-  if x(1) <= 1
-    sol(1) = -x(1);
-elseif x(1) > 1 && x(1) <= 3 
-    sol(1) = (x(1) - 2);
-elseif x(1) > 3 && x(1) <= 4
-    sol(1) = (4 - x(1));
-elseif x(1) > 4 
-    sol(1) = (x(1) - 4);
+aux = 0;
+for i = 3:12
+    aux = aux + (x(i) - 0.5)^2;
 end
-    sol(2) = (x(1) - 5 )^2;
+g = aux;
+sol(1) = (1 + g) * cos(pi * x(1)^100 * 0.5)*cos(pi * x(2)^100*0.5);
+sol(2) = (1 + g) * cos(pi * x(1)^100 * 0.5)*sin(pi * x(2)^100*0.5);
+sol(3) = (1 + g) * sin(0.5 * x(1)^100*pi);
 end
 
 function res = restriction(x)
     res = 1;
-end
-
-function [arc,sol] = iarchive(SL, nov, minv, maxv)
-arc = [];
-sol = [];
-for ii=1:SL
-    for jj = 1:nov
-        arc(ii, jj) = minv(jj) + rand() * (maxv(jj) - minv(jj));
-    end
-        sol(ii, :) = fobj(arc(ii, :));
-end
 end
 
 
@@ -284,14 +274,14 @@ function [archive, solution] = clust(archive, solution, HL)
     while (a - HL) > 0
         cont = 1;
         min_list = zeros(a,a);
-        while cont <= a 
-            for k = 1:(a)
+        for cont = 1:a 
+            for k = (cont + 1):(a)
                 if k == cont
-                    min_list(k , k) = NaN;
+                    min_list(k , k) = inf;
                 else
                     aux = 0;
                     for i = 1:b
-                        aux = aux + abs(archive(cont, i)^2 - archive(k, i)^2);
+                        aux = aux + abs(archive(cont, i) - archive(k, i))^2;
                     end
                     min_list(cont, k) = sqrt(aux); 
                 end
@@ -317,6 +307,7 @@ function [archive, solution] = clust(archive, solution, HL)
         [a, b] = size(archive);
     end
 end
+
 function [R] = maxmin(solarchive)
     [~, col] = size(solarchive);
     for i = 1:col
@@ -373,7 +364,6 @@ else
     dominance = 0;
 end
 end
-
 function [archive, sol] = delete(archive, sol, a)
     [lines, nof] = size(archive);
     k = 0;
@@ -391,6 +381,7 @@ function [archive, sol] = delete(archive, sol, a)
     archive(list_remove, :) = [];
     sol(list_remove, :) = [];
 end
+
 function [archive, sol] = init_sol(nof, nov, maxv, minv, SL)
 hill_climb = 20;
 b = 0.5;

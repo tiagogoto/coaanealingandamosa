@@ -8,7 +8,7 @@ fun_name = "Chankong_";
 problem = "Chankong";
 score = [];
 timetable =[];
-for run_num = 1:50
+for run_num = 1:1
 
 filename = strcat(fun_name, string(run_num));
 filename = strcat('amosa/', filename);

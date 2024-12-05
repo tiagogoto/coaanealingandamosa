@@ -9,7 +9,7 @@ problem = "viennet";
 
 score = [];
 timetable =[];
-for run_num = 1:150
+for run_num = 107:150
 filename = strcat(fun_name, string(run_num));
 filename = strcat('amosa/', filename);
 file_solutions = strcat(filename, "_solutions");
@@ -238,14 +238,15 @@ saveas(figure(2), strcat(filename, '.png'));
 save(filename)
 save(file_solutions, 'solution')
 save(file_archive, 'archive')
+writematrix(solution, file_solutions, 'Delimiter', 'space');
+writematrix(archive, file_archive, 'Delimiter', 'space');
 timetable(run_num, :) = [elapsed, abs(fintime - initime), etime(time2, time1), evaluate ];
 [score(run_num, :)] = benchmark(solution, problem);
 end
 
 path_score = strcat(filename, '_score.txt');
 path_time = strcat(filename, '_time.txt');
-writematrix(solution, file_solutions, 'Delimiter', 'space');
-writematrix(archive, file_archive, 'Delimiter', 'space');
+
 writematrix(score, path_score, 'Delimiter', 'space');
 writematrix(timetable, path_time, 'Delimiter', 'space');
 
