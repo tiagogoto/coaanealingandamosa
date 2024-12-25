@@ -60,7 +60,7 @@ while temp > Tmin
             % estrategy I - C = 1 
             % estrategy II - C / 2 -> round(C_i(C_ind)/2);
             %estrategy III - C = C -1  -> %C_i(C_ind) - 1;
-            C_i(C_ind) = round(C_i(C_ind)/2) ;
+            C_i(C_ind) = C_i(C_ind) - 1 ;
            if C_i(C_ind) < 1
                 C_i(C_ind) = 1;
            end

@@ -218,6 +218,7 @@ fprintf('CPUTIME: %g\n', fintime - initime);
 fprintf('CLOCK:   %g\n', etime(time2, time1));
 fprintf('Evaluate: %g\n', evaluate);
 
+
 filenamepareto = strcat(problem, "_pareto.dat");
 true_sol = readmatrix(filenamepareto);
 figure(2)
@@ -229,9 +230,9 @@ title('AMOSA')
 xlabel('f1(x)')
 ylabel('f2(x)')
 zlabel('f3(x)')
-legend('ZDT4', 'location', 'best')
+legend('ZDT1', 'location', 'best')
 saveas(figure(2), strcat(filename, '.png'));
-
+%hold on
 %vv=0:0.0001:1;
 %ff = (1 - sqrt(vv));
 %plot(vv, ff);
@@ -239,15 +240,17 @@ saveas(figure(2), strcat(filename, '.png'));
 save(filename)
 save(file_solutions, 'solution')
 save(file_archive, 'archive')
+writematrix(solution, file_solutions, 'Delimiter', 'space');
+writematrix(archive, file_archive, 'Delimiter', 'space');
 timetable(run_num, :) = [elapsed, abs(fintime - initime), etime(time2, time1), evaluate ];
 [score(run_num, :)] = benchmark(solution, problem);
 end
+
 path_score = strcat(filename, '_score.txt');
 path_time = strcat(filename, '_time.txt');
+
 writematrix(score, path_score, 'Delimiter', 'space');
 writematrix(timetable, path_time, 'Delimiter', 'space');
-
-
 
 %--------------------------------------------
 
@@ -285,7 +288,7 @@ function [archive, solution] = clust(archive, solution, HL)
         while cont <= a 
             for k = 1:(a)
                 if k == cont
-                    min_list(k , k) = 0;
+                    min_list(k , k) = NaN;
                 else
                     aux = 0;
                     for i = 1:b
@@ -388,4 +391,31 @@ function [archive, sol] = delete(archive, sol, a)
     end
     archive(list_remove, :) = [];
     sol(list_remove, :) = [];
+end
+function [archive, sol] = init_sol(nof, nov, maxv, minv, SL)
+hill_climb = 20;
+b = 0.5;
+for ii = 1:SL
+    for col = 1:nov
+        archive(ii, col) = rand() * (maxv(col) - minv(col)) + minv(col);
+    end
+end
+sol = [];
+for i = 1:SL
+    for j = 1:hill_climb
+        sol(i, :) = fobj(archive(i, :));
+        xnew = newsolution(archive(i, :), b, nov, maxv, minv);
+        solnew = fobj(xnew);
+        count = 0;
+        for iii = 1:nof
+            if sol(i, iii) >= solnew(iii)
+                count = count + 1 ;
+            end
+        end
+        if count == nof
+            sol(i, : ) = solnew;
+            archive(i, :) = xnew;
+        end
+    end
+end
 end

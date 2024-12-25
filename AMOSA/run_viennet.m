@@ -9,7 +9,7 @@ problem = "viennet";
 
 score = [];
 timetable =[];
-for run_num = 107:150
+for run_num = 1:150
 filename = strcat(fun_name, string(run_num));
 filename = strcat('amosa/', filename);
 file_solutions = strcat(filename, "_solutions");
@@ -19,7 +19,7 @@ initime = cputime();
 time1 = clock;
 Tmax = 200;
 Tmin = 0.00000001;
-N =500;
+N =1000;
 HL = 75;
 SL = 100;
 alpha = 0.95;
